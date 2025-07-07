@@ -49,10 +49,6 @@ local function resolve_target(target)
         return target
       end
       
-      local marked = pane.find_marked_pane(target)
-      if marked then
-        return marked.id
-      end
       
       if target == "last" then
         local last_pane = pane.get_last_pane()
@@ -149,9 +145,6 @@ function M.select_pane()
   local items = {}
   for _, p in ipairs(panes) do
     local label = string.format("%s [%d] %s", p.id, p.index, p.title)
-    if p.marked_as then
-      label = label .. " (" .. p.marked_as .. ")"
-    end
     if p.current then
       label = label .. " *"
     end
@@ -166,25 +159,6 @@ function M.select_pane()
   return nil
 end
 
----Mark pane with a name
----@param name string Name for the pane
----@param pane_id? string Pane to mark (default: current target)
-function M.mark_pane(name, pane_id)
-  ensure_loaded()
-  local pane = load_private("pane")
-  local sender = load_private("sender")
-  
-  if not pane_id then
-    pane_id = sender.get_last_target()
-    if not pane_id then
-      vim.notify("[tmux-send] No target pane to mark", vim.log.levels.ERROR)
-      return
-    end
-  end
-  
-  pane.mark_pane(pane_id, name)
-  vim.notify("[tmux-send] Marked pane " .. pane_id .. " as '" .. name .. "'")
-end
 
 ---Optional setup
 ---@param opts? TmuxSendConfig

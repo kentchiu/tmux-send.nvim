@@ -50,7 +50,6 @@ tmux-send.nvim/
 - **List Panes**: Show all available tmux panes
 - **Select Pane**: Interactive pane selection
 - **Remember Target**: Keep track of last used pane
-- **Named Targets**: Label panes for quick access
 - **Multi-target**: Send to multiple panes simultaneously
 
 ### 3. Command Interface
@@ -61,10 +60,7 @@ Single command with subcommands and smart completion:
 :TmuxSend              " Send current line/selection
 :TmuxSend line         " Send current line
 :TmuxSend pane         " Select target pane
-:TmuxSend mark <name>  " Mark current target with name
-:TmuxSend to <target>  " Send to specific target
 :TmuxSend list         " List all panes
-:TmuxSend history      " Show send history
 ```
 
 ### 4. Plug Mappings
@@ -74,7 +70,6 @@ Single command with subcommands and smart completion:
 <Plug>(TmuxSendSelection)  " Send selection
 <Plug>(TmuxSendMotion)     " Operator for motions
 <Plug>(TmuxSelectPane)     " Open pane selector
-<Plug>(TmuxSendRepeat)     " Repeat last send
 ```
 
 ## Configuration Options
@@ -90,8 +85,6 @@ Single command with subcommands and smart completion:
   -- Use bracketed paste mode
   use_bracketed_paste = true,
 
-  -- Remember N recent panes
-  history_size = 5,
 
   -- Pane selector UI
   selector = {
@@ -126,10 +119,6 @@ function M.send(text, target) end
 ---@return string|nil pane_id
 function M.select_pane() end
 
----Mark pane with a name
----@param name string Name for the pane
----@param pane_id? string Pane to mark (default: current target)
-function M.mark_pane(name, pane_id) end
 
 ---Optional setup
 ---@param opts? TmuxSendConfig
@@ -143,7 +132,6 @@ function M.setup(opts) end
 ---@field default_pane? string|integer Default target pane
 ---@field send_enter? boolean Auto-append Enter
 ---@field use_bracketed_paste? boolean Use bracketed paste mode
----@field history_size? integer Number of recent panes to remember
 ---@field selector? TmuxSendSelectorConfig Pane selector options
 ---@field templates? table<string, string> Text templates
 
@@ -158,7 +146,6 @@ function M.setup(opts) end
 ---@field current boolean Is current pane
 ---@field width integer Pane width
 ---@field height integer Pane height
----@field marked_as? string Custom name if marked
 ```
 
 ## Implementation Phases
@@ -172,8 +159,7 @@ function M.setup(opts) end
 ### Phase 2: Pane Management
 
 1. Interactive pane selector
-2. Pane marking/naming system
-3. History tracking
+2. Interactive pane selector
 
 ### Phase 3: Enhanced Features
 

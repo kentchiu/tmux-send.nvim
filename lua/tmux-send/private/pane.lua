@@ -10,9 +10,6 @@ local util = require("tmux-send.private.util")
 ---@field current boolean Is current pane
 ---@field width integer Pane width
 ---@field height integer Pane height
----@field marked_as? string Custom name if marked
-
-local marked_panes = {}
 
 ---List all panes in current session
 ---@return TmuxPane[]
@@ -33,7 +30,6 @@ function M.list_panes()
     if line ~= "" then
       local pane_info = util.parse_pane_info(line)
       if pane_info then
-        pane_info.marked_as = marked_panes[pane_info.id]
         table.insert(panes, pane_info)
       end
     end
@@ -53,26 +49,6 @@ function M.find_pane(pane_id)
     end
   end
   return nil
-end
-
----Find pane by name (marked)
----@param name string
----@return TmuxPane?
-function M.find_marked_pane(name)
-  local panes = M.list_panes()
-  for _, pane in ipairs(panes) do
-    if pane.marked_as == name then
-      return pane
-    end
-  end
-  return nil
-end
-
----Mark pane with name
----@param pane_id string
----@param name string
-function M.mark_pane(pane_id, name)
-  marked_panes[pane_id] = name
 end
 
 ---Get next pane

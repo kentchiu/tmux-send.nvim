@@ -1,6 +1,14 @@
 ---@class tmux-send.private.util
 local M = {}
 
+---@class TmuxPane
+---@field id string Pane identifier
+---@field index integer Pane index
+---@field title string Pane title
+---@field current boolean Is current pane
+---@field width integer Pane width
+---@field height integer Pane height
+
 ---Check if running inside tmux
 ---@return boolean
 function M.in_tmux()
@@ -54,7 +62,7 @@ end
 
 ---Parse pane info string
 ---@param info string
----@return table? pane_info
+---@return TmuxPane?
 function M.parse_pane_info(info)
   local parts = vim.split(info, "\t")
   if #parts < 6 then

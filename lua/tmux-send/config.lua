@@ -2,7 +2,6 @@
 ---@field default_pane? string|integer Default target pane
 ---@field send_enter? boolean Auto-append Enter
 ---@field use_bracketed_paste? boolean Use bracketed paste mode
----@field history_size? integer Number of recent panes to remember
 ---@field selector? TmuxSendSelectorConfig Pane selector options
 ---@field templates? table<string, string> Text templates
 
@@ -18,7 +17,6 @@ local default_config = {
   default_pane = "last",
   send_enter = true,
   use_bracketed_paste = true,
-  history_size = 5,
   selector = {
     prefer_telescope = true,
     show_preview = true,

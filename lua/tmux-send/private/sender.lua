@@ -4,18 +4,6 @@ local M = {}
 local util = require("tmux-send.private.util")
 
 local last_target = nil
-local send_history = {}
-local MAX_HISTORY = 5
-
----Add to send history
----@param text string
----@param target string
-local function add_to_history(text, target)
-  table.insert(send_history, 1, { text = text, target = target, time = os.time() })
-  if #send_history > MAX_HISTORY then
-    table.remove(send_history)
-  end
-end
 
 ---Send text to pane
 ---@param text string Text to send
@@ -61,7 +49,6 @@ function M.send_to_pane(text, target, opts)
     util.tmux_exec({ "send-keys", "-t", target, "Enter" })
   end
   
-  add_to_history(text, target)
   
   return true
 end
@@ -70,24 +57,6 @@ end
 ---@return string?
 function M.get_last_target()
   return last_target
-end
-
----Get send history
----@return table[]
-function M.get_history()
-  return send_history
-end
-
----Repeat last send
----@return boolean success
----@return string? error
-function M.repeat_last()
-  if #send_history == 0 then
-    return false, "No send history"
-  end
-  
-  local last = send_history[1]
-  return M.send_to_pane(last.text, last.target)
 end
 
 ---Send current line

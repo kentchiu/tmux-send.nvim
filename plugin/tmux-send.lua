@@ -4,7 +4,7 @@ end
 vim.g.loaded_tmux_send = 1
 
 local function cmd_complete(arg_lead, cmd_line, cursor_pos)
-  local subcmds = { "line", "pane", "mark", "to", "list", "history" }
+  local subcmds = { "line", "pane", "list" }
   
   -- Parse the command line to get arguments after "TmuxSend"
   local cmd_start = cmd_line:find("TmuxSend")
@@ -25,12 +25,6 @@ local function cmd_complete(arg_lead, cmd_line, cursor_pos)
     end, subcmds)
   end
   
-  -- For "mark" and "to" subcommands, we could provide pane name completion
-  local first_arg = after_cmd:match("^%s+(%S+)")
-  if first_arg == "mark" or first_arg == "to" then
-    -- TODO: In the future, we could return marked pane names
-    return {}
-  end
   
   return {}
 end
@@ -48,32 +42,15 @@ vim.api.nvim_create_user_command("TmuxSend", function(opts)
     if pane_id then
       tmux_send.send(nil, pane_id)
     end
-  elseif args[1] == "mark" and args[2] then
-    tmux_send.mark_pane(args[2])
-  elseif args[1] == "to" and args[2] then
-    local text = table.concat(vim.list_slice(args, 3), " ")
-    if text == "" then
-      text = nil
-    end
-    tmux_send.send(text, args[2])
   elseif args[1] == "list" then
     local pane = require("tmux-send.private.pane")
     local panes = pane.list_panes()
     for _, p in ipairs(panes) do
       local info = string.format("%s [%d] %s", p.id, p.index, p.title)
-      if p.marked_as then
-        info = info .. " (" .. p.marked_as .. ")"
-      end
       if p.current then
         info = info .. " *"
       end
       print(info)
-    end
-  elseif args[1] == "history" then
-    local sender = require("tmux-send.private.sender")
-    local history = sender.get_history()
-    for i, item in ipairs(history) do
-      print(string.format("%d: %s -> %s", i, item.text:gsub("\n", "\\n"), item.target))
     end
   else
     vim.notify("[tmux-send] Unknown subcommand: " .. args[1], vim.log.levels.ERROR)
@@ -106,13 +83,6 @@ vim.keymap.set("n", "<Plug>(TmuxSelectPane)", function()
   end
 end, { desc = "Select tmux pane" })
 
-vim.keymap.set("n", "<Plug>(TmuxSendRepeat)", function()
-  local sender = require("tmux-send.private.sender")
-  local success, err = sender.repeat_last()
-  if not success then
-    vim.notify("[tmux-send] " .. err, vim.log.levels.ERROR)
-  end
-end, { desc = "Repeat last tmux send" })
 
 _G.require("tmux-send").send_operator = function(motion_type)
   local tmux_send = require("tmux-send")
