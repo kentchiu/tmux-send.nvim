@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-field
 local eq = assert.are.same
 
 describe("tmux-send", function()

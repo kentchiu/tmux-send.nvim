@@ -3,7 +3,7 @@ local M = {}
 
 local util = require("tmux-send.private.util")
 
----@alias TmuxPane table
+---@class TmuxPane
 ---@field id string Pane identifier
 ---@field index integer Pane index
 ---@field title string Pane title

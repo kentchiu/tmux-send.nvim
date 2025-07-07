@@ -1,0 +1,4 @@
+-- This file helps Lua Language Server understand assert functions
+---@diagnostic disable: undefined-field
+local assert = require("luassert")
+return assert

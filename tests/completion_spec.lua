@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-field, need-check-nil
 describe("TmuxSend command completion", function()
   local cmd_complete
 

@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-field
 describe("tmux-send.config", function()
   local config
 
