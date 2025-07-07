@@ -1,0 +1,16 @@
+{
+  "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
+  "runtime.version": "LuaJIT",
+  "diagnostics.globals": ["vim"],
+  "workspace.checkThirdParty": false,
+  "workspace.library": [
+    "$VIMRUNTIME",
+    "${3rd}/luv/library"
+  ],
+  "hint.enable": true,
+  "hint.setType": true,
+  "hint.paramType": true,
+  "hint.paramName": "All",
+  "hint.semicolon": "Disable",
+  "format.enable": false
+}

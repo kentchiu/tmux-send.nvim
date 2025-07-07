@@ -1,2 +1,3 @@
 # tmux-send.nvim
-Send any text o other tmux pane.
+
+Send any text other tmux pane.
