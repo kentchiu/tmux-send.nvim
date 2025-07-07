@@ -33,6 +33,14 @@ vim.api.nvim_create_user_command("TmuxSend", function(opts)
   local tmux_send = require("tmux-send")
   local args = vim.split(opts.args, "%s+", { trimempty = true })
   
+  -- Handle visual range selection
+  if opts.range > 0 then
+    local lines = vim.api.nvim_buf_get_lines(0, opts.line1 - 1, opts.line2, false)
+    local text = table.concat(lines, "\n")
+    tmux_send.send(text)
+    return
+  end
+  
   if #args == 0 then
     tmux_send.send()
   elseif args[1] == "line" then
