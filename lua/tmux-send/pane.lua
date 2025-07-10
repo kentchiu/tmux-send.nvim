@@ -1,7 +1,7 @@
----@class tmux-send.private.pane
+---@class tmux-send.pane
 local M = {}
 
-local util = require("tmux-send.private.util")
+local util = require("tmux-send.util")
 
 ---@class TmuxPane
 ---@field id string Pane identifier

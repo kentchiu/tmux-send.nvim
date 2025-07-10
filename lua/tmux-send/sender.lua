@@ -1,7 +1,7 @@
----@class tmux-send.private.sender
+---@class tmux-send.sender
 local M = {}
 
-local util = require("tmux-send.private.util")
+local util = require("tmux-send.util")
 
 local last_target = nil
 
@@ -73,25 +73,11 @@ end
 ---@return boolean success
 ---@return string? error
 function M.send_selection(target)
-  local start_pos = vim.fn.getpos("'<")
-  local end_pos = vim.fn.getpos("'>")
-  local start_line = start_pos[2]
-  local end_line = end_pos[2]
-  
-  local lines = vim.api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
-  
-  if #lines == 1 then
-    local start_col = start_pos[3]
-    local end_col = end_pos[3]
-    lines[1] = string.sub(lines[1], start_col, end_col)
-  elseif #lines > 1 then
-    local start_col = start_pos[3]
-    local end_col = end_pos[3]
-    lines[1] = string.sub(lines[1], start_col)
-    lines[#lines] = string.sub(lines[#lines], 1, end_col)
+  local text = util.get_visual_selection()
+  if not text then
+    return false, "Failed to get visual selection"
   end
   
-  local text = table.concat(lines, "\n")
   return M.send_to_pane(text, target)
 end
 

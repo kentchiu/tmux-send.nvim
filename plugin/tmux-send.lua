@@ -51,7 +51,7 @@ vim.api.nvim_create_user_command("TmuxSend", function(opts)
       tmux_send.send(nil, pane_id)
     end
   elseif args[1] == "list" then
-    local pane = require("tmux-send.private.pane")
+    local pane = require("tmux-send.pane")
     local panes = pane.list_panes()
     for _, p in ipairs(panes) do
       local info = string.format("%s [%d] %s", p.id, p.index, p.title)

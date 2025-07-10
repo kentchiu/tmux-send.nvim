@@ -1,6 +1,15 @@
 ---@class tmux-send
 local M = {}
 
+---@type tmux-send.sender
+local sender = require("tmux-send.sender")
+---@type tmux-send.pane
+local pane = require("tmux-send.pane")
+---@type tmux-send.util
+local util = require("tmux-send.util")
+---@type tmux-send.config
+local config
+
 local loaded = false
 local modules = {}
 
@@ -14,16 +23,6 @@ local function load_module(name)
   return modules[name]
 end
 
----Lazy load private module
----@param name string
----@return table
-local function load_private(name)
-  local key = "private." .. name
-  if not modules[key] then
-    modules[key] = require("tmux-send.private." .. name)
-  end
-  return modules[key]
-end
 
 ---Ensure plugin is loaded
 local function ensure_loaded()
@@ -39,9 +38,8 @@ end
 ---@return string? pane_id
 ---@return string? error
 local function resolve_target(target)
-  local pane = load_private("pane")
-  local sender = load_private("sender")
-  local config = load_module("config").get()
+  config = config or load_module("config")
+  local cfg = config.get()
   
   if target then
     if type(target) == "string" then
@@ -74,23 +72,23 @@ local function resolve_target(target)
     return last_target
   end
   
-  if config.default_pane == "last" then
+  if cfg.default_pane == "last" then
     local last_pane = pane.get_last_pane()
     if last_pane then
       return last_pane.id
     end
-  elseif config.default_pane == "next" then
+  elseif cfg.default_pane == "next" then
     local next_pane = pane.get_next_pane()
     if next_pane then
       return next_pane.id
     end
-  elseif config.default_pane == "previous" then
+  elseif cfg.default_pane == "previous" then
     local prev_pane = pane.get_previous_pane()
     if prev_pane then
       return prev_pane.id
     end
-  elseif config.default_pane then
-    return tostring(config.default_pane)
+  elseif cfg.default_pane then
+    return tostring(cfg.default_pane)
   end
   
   return nil, "No target pane found"
@@ -101,7 +99,6 @@ end
 ---@param target? string|integer Target pane (default: last used)
 function M.send(text, target)
   ensure_loaded()
-  local sender = load_private("sender")
   
   local pane_id, err = resolve_target(target)
   if not pane_id then
@@ -128,8 +125,6 @@ end
 ---@return string|nil pane_id
 function M.select_pane()
   ensure_loaded()
-  local pane = load_private("pane")
-  local util = load_private("util")
   
   if not util.in_tmux() then
     vim.notify("[tmux-send] Not in tmux session", vim.log.levels.ERROR)
@@ -164,7 +159,7 @@ end
 ---@param opts? TmuxSendConfig
 function M.setup(opts)
   ensure_loaded()
-  local config = load_module("config")
+  config = config or load_module("config")
   config.set(opts)
 end
 
