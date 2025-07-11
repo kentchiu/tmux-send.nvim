@@ -45,9 +45,6 @@ function M.send_to_pane(text, target, opts)
     end
   end
 
-  if config.send_enter and opts.send_enter ~= false then
-    -- util.tmux_exec({ "send-keys", "-t", target, "Enter" })
-  end
 
   return true
 end

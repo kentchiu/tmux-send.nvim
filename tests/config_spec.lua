@@ -10,7 +10,7 @@ describe("tmux-send.config", function()
   it("should have default values", function()
     local cfg = config.get()
     assert.are.equal("last", cfg.default_pane)
-    assert.are.equal(true, cfg.send_enter)
+    assert.are.equal(false, cfg.send_enter)
     assert.are.equal(true, cfg.use_bracketed_paste)
   end)
 

@@ -11,7 +11,7 @@ local M = {}
 ---@type TmuxSendConfig
 local default_config = {
   default_pane = "last",
-  send_enter = true,
+  send_enter = false,
   use_bracketed_paste = true,
   keymaps = true,
   keymap_prefix = "<leader>at",
