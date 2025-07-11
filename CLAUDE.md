@@ -25,11 +25,13 @@ make test  # 使用 plenary.nvim 執行測試
 
 ### 模組結構
 
-- `lua/tmux-send/tmux.lua`: tmux 整合核心，處理 pane 偵測和文字發送
-- `lua/tmux-send/actions.lua`: 使用者操作（fix、dialog、add_file）
-- `lua/tmux-send/dialog.lua`: 浮動視窗對話框系統
-- `lua/tmux-send/health.lua`: 健康檢查功能
-- `plugin/tmuxsend.lua`: Vim 命令定義
+- `lua/tmux-send/config.lua`: 配置管理
+- `lua/tmux-send/init.lua`: 插件初始化和設定
+- `lua/tmux-send/keymaps.lua`: 鍵盤映射管理
+- `lua/tmux-send/pane.lua`: tmux pane 選擇和管理
+- `lua/tmux-send/sender.lua`: 文字發送核心功能
+- `lua/tmux-send/util.lua`: 通用工具函數
+- `plugin/tmux-send.lua`: Vim 命令定義
 
 ### 關鍵概念
 
