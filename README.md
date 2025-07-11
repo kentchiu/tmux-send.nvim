@@ -13,10 +13,6 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
     "nvim-lua/plenary.nvim", -- Required for tests
     "folke/snacks.nvim",     -- Optional for better UI
   },
-  keys = {
-    { "<leader>atl", "<Plug>(TmuxSendLine)", desc = "Send current line to tmux" },
-    { "<leader>ats", "<Plug>(TmuxSendSelection)", mode = "x", desc = "Send selection to tmux" },
-  },
   config = function()
     require("tmux-send").setup({
       -- Configuration options (see below)
@@ -25,14 +21,58 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
 }
 ```
 
-## Alternative Keymap Setup
+## Default Keymaps
 
-If you prefer to set up keymaps separately or use different key bindings:
+By default, tmux-send.nvim sets up the following keymaps:
+
+- `<leader>ats` - Send current line/selection to tmux
+- `<leader>atp` - Select tmux pane and send
+- `<leader>atl` - List tmux panes
+
+### Disabling Default Keymaps
+
+To disable all default keymaps:
 
 ```lua
--- In your Neovim configuration
+require("tmux-send").setup({
+  keymaps = false,
+})
+```
+
+### Customizing Keymaps
+
+To use a different prefix:
+
+```lua
+require("tmux-send").setup({
+  keymap_prefix = "<leader>m",  -- Use <leader>m instead of <leader>at
+})
+```
+
+To customize specific keymaps:
+
+```lua
+require("tmux-send").setup({
+  keymaps = {
+    send = "<C-s>",           -- Use Ctrl-s for send
+    select_pane = false,      -- Disable pane selection keymap
+  },
+})
+```
+
+### Manual Keymap Setup
+
+If you prefer to set up keymaps manually:
+
+```lua
+require("tmux-send").setup({
+  keymaps = false,  -- Disable default keymaps
+})
+
+-- Set up your own keymaps
 vim.keymap.set("n", "<leader>tl", "<Plug>(TmuxSendLine)")        -- Send current line
 vim.keymap.set("x", "<leader>ts", "<Plug>(TmuxSendSelection)")   -- Send visual selection
+vim.keymap.set("n", "<leader>tp", "<Plug>(TmuxSelectPane)")      -- Select pane
 ```
 
 ## Commands
@@ -55,6 +95,12 @@ require("tmux-send").setup({
   -- Use tmux bracketed paste mode for better handling of special characters
   use_bracketed_paste = true,
 
+  -- Enable default keymaps (set to false to disable)
+  keymaps = true,
+
+  -- Prefix for default keymaps
+  keymap_prefix = "<leader>at",
+
   -- Pane selector options
   selector = {
     prefer_telescope = true,  -- Use telescope.nvim if available
@@ -68,13 +114,11 @@ require("tmux-send").setup({
 
 ## Usage
 
-1. **Basic usage**: Place cursor on a line and use your keymap (e.g., `<leader>tl`) to send it to the last active tmux pane.
+1. **Basic usage**: Place cursor on a line and use your keymap (e.g., `<leader>ats`) to send it to the last active tmux pane.
 
-2. **Visual selection**: Select text in visual mode and use `<leader>ts` to send the selection.
+2. **Visual selection**: Select text in visual mode and use `<leader>ats` to send the selection.
 
-3. **With motions**: Use the `:TmuxSend` command with motions.
-
-4. **Select target pane**: Use `:TmuxSelectPane` to interactively select which tmux pane to send text to.
+3. **Select target pane**: Use `:TmuxSelectPane` to interactively select which tmux pane to send text to.
 
 ## Requirements
 

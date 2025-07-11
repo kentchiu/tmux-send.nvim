@@ -17,14 +17,14 @@ function M.list_panes()
   if not util.in_tmux() then
     return {}
   end
-  
+
   local format = "#{pane_id}\t#{pane_index}\t#{pane_title}\t#{pane_active}\t#{pane_width}\t#{pane_height}"
   local output, err = util.tmux_exec({ "list-panes", "-F", format })
-  
+
   if err then
     return {}
   end
-  
+
   local panes = {}
   for _, line in ipairs(vim.split(output, "\n")) do
     if line ~= "" then
@@ -34,7 +34,7 @@ function M.list_panes()
       end
     end
   end
-  
+
   return panes
 end
 
@@ -56,20 +56,20 @@ end
 function M.get_next_pane()
   local panes = M.list_panes()
   local current_idx = nil
-  
+
   for i, pane in ipairs(panes) do
     if pane.current then
       current_idx = i
       break
     end
   end
-  
+
   if current_idx and current_idx < #panes then
     return panes[current_idx + 1]
   elseif #panes > 1 then
     return panes[1]
   end
-  
+
   return nil
 end
 
@@ -78,20 +78,20 @@ end
 function M.get_previous_pane()
   local panes = M.list_panes()
   local current_idx = nil
-  
+
   for i, pane in ipairs(panes) do
     if pane.current then
       current_idx = i
       break
     end
   end
-  
+
   if current_idx and current_idx > 1 then
     return panes[current_idx - 1]
   elseif #panes > 1 then
     return panes[#panes]
   end
-  
+
   return nil
 end
 
@@ -101,12 +101,12 @@ function M.get_last_pane()
   if not util.in_tmux() then
     return nil
   end
-  
+
   local output, err = util.tmux_exec({ "display-message", "-p", "-t", "{last}", "#{pane_id}" })
   if err then
     return nil
   end
-  
+
   local pane_id = vim.trim(output)
   return M.find_pane(pane_id)
 end

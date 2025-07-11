@@ -51,3 +51,6 @@ make test  # 使用 plenary.nvim 執行測試
    - 保持程式碼簡單，提升 LSP 支援度
 3. **Tmux 環境**: 所有功能都依賴於 tmux 環境，必須檢查 `$TMUX` 環境變數
 
+## LSP 支援
+
+- 程式要儘可能的支援開發的 LSP 功能

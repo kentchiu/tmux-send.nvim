@@ -2,12 +2,8 @@
 ---@field default_pane? string|integer Default target pane
 ---@field send_enter? boolean Auto-append Enter
 ---@field use_bracketed_paste? boolean Use bracketed paste mode
----@field selector? TmuxSendSelectorConfig Pane selector options
----@field templates? table<string, string> Text templates
-
----@class TmuxSendSelectorConfig
----@field prefer_telescope? boolean Use telescope if available
----@field show_preview? boolean Show pane content preview
+---@field keymaps? boolean|table<string, string|false> Enable default keymaps or custom mappings
+---@field keymap_prefix? string Prefix for default keymaps (default: "<leader>t")
 
 ---@class tmux-send.config
 local M = {}
@@ -17,11 +13,8 @@ local default_config = {
   default_pane = "last",
   send_enter = true,
   use_bracketed_paste = true,
-  selector = {
-    prefer_telescope = true,
-    show_preview = true,
-  },
-  templates = {},
+  keymaps = true,
+  keymap_prefix = "<leader>at",
 }
 
 ---@type TmuxSendConfig
@@ -43,3 +36,4 @@ end
 M.set({})
 
 return M
+

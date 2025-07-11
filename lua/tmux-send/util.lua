@@ -155,15 +155,15 @@ function M.get_visual_selection()
     M.log("字元選擇模式 (Visual)", "DEBUG")
     if #lines == 1 then
       -- 單行選擇
-      -- 確保 end_col 不超過實際行長度 (處理多位元組字元)
       local line_content = lines[1]
-      local byte_end_col = vim.fn.byteidx(line_content, end_col) -- 獲取結束字元的位元組索引
-      if byte_end_col == -1 then
-        byte_end_col = #line_content
-      end -- 如果超出範圍，取到結尾
-      lines[1] = string.sub(line_content, start_col, byte_end_col)
+      -- vim.fn.getpos 返回的是位元組位置 (1-based)，需要轉換為字元索引
+      local start_char_idx = vim.fn.charidx(line_content, start_col - 1)  -- 轉換為 0-based 位元組位置
+      local end_char_idx = vim.fn.charidx(line_content, end_col - 1)      -- 轉換為 0-based 位元組位置
+      local char_count = end_char_idx - start_char_idx + 1
+      lines[1] = vim.fn.strcharpart(line_content, start_char_idx, char_count)
       M.log(
-        string.format("單行截取: start_col=%d, byte_end_col=%d, content='%s'", start_col, byte_end_col, lines[1]),
+        string.format("單行截取: start_char=%d, end_char=%d, count=%d, content='%s'", 
+          start_char_idx, end_char_idx, char_count, lines[1]),
         "DEBUG"
       )
     else
@@ -172,17 +172,15 @@ function M.get_visual_selection()
       local last_line_content = lines[#lines]
 
       -- 截取第一行從 start_col 開始的部分
-      lines[1] = string.sub(first_line_content, start_col)
-      M.log(string.format("多行截取 - 第一行: start_col=%d, content='%s'", start_col, lines[1]), "DEBUG")
+      local start_char_idx = vim.fn.charidx(first_line_content, start_col - 1)
+      lines[1] = vim.fn.strcharpart(first_line_content, start_char_idx)
+      M.log(string.format("多行截取 - 第一行: start_char=%d, content='%s'", start_char_idx, lines[1]), "DEBUG")
 
       -- 截取最後一行到 end_col 的部分
-      local last_byte_end_col = vim.fn.byteidx(last_line_content, end_col) -- 獲取結束字元的位元組索引
-      if last_byte_end_col == -1 then
-        last_byte_end_col = #last_line_content
-      end -- 如果超出範圍，取到結尾
-      lines[#lines] = string.sub(last_line_content, 1, last_byte_end_col)
+      local end_char_idx = vim.fn.charidx(last_line_content, end_col - 1) + 1  -- +1 因為要包含結束字元
+      lines[#lines] = vim.fn.strcharpart(last_line_content, 0, end_char_idx)
       M.log(
-        string.format("多行截取 - 最後一行: byte_end_col=%d, content='%s'", last_byte_end_col, lines[#lines]),
+        string.format("多行截取 - 最後一行: end_char=%d, content='%s'", end_char_idx, lines[#lines]),
         "DEBUG"
       )
     end
