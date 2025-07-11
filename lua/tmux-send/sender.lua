@@ -14,26 +14,26 @@ local last_target = nil
 function M.send_to_pane(text, target, opts)
   opts = opts or {}
   local config = require("tmux-send.config").get()
-  
+
   if not util.in_tmux() then
     return false, "Not in tmux session"
   end
-  
+
   last_target = target
-  
+
   local args = { "send-keys", "-t", target }
-  
+
   if config.use_bracketed_paste and opts.use_bracketed_paste ~= false then
     table.insert(args, "-X")
     table.insert(args, "begin-selection")
     util.tmux_exec(args)
-    
+
     args = { "send-keys", "-t", target, "-l", text }
     local _, err = util.tmux_exec(args)
     if err then
       return false, err
     end
-    
+
     args = { "send-keys", "-t", target, "-X", "cancel" }
     util.tmux_exec(args)
   else
@@ -44,12 +44,11 @@ function M.send_to_pane(text, target, opts)
       return false, err
     end
   end
-  
+
   if config.send_enter and opts.send_enter ~= false then
-    util.tmux_exec({ "send-keys", "-t", target, "Enter" })
+    -- util.tmux_exec({ "send-keys", "-t", target, "Enter" })
   end
-  
-  
+
   return true
 end
 
@@ -77,7 +76,7 @@ function M.send_selection(target)
   if not text then
     return false, "Failed to get visual selection"
   end
-  
+
   return M.send_to_pane(text, target)
 end
 
@@ -93,3 +92,4 @@ function M.send_file_path(target, opts)
 end
 
 return M
+
