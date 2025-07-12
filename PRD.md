@@ -5,7 +5,7 @@
 - [x] send text to other pane
 - [x] show pane number (tmux command)
 - [x] select pane by pane number
-- [ ] send path to target pane
+- [x] send path to target pane
 - [ ] send diagnostics
 
 名稱解釋:
@@ -66,3 +66,12 @@ line1: 123 1 2 3 中文字 測試,中文 ABC
 - expect: `1 2 3 中文字`
 - action: `1 2 3 中文字 測試,`
 - result: failed
+
+## Send Path to target pane
+
+操作流程
+
+- 開啟 snack.nvim 的 picker 讓 user 選擇一到多個檔案
+- 使用者選擇檔案後, 會把完整的路徑傳送到 target pane
+
+snack.nvim 的 picker 開啟後, 要顯示目前目錄下所有的檔案, 包含 hidden 跟 git ignore 的檔案跟目錄

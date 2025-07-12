@@ -36,7 +36,7 @@ describe("TmuxSend command completion", function()
 
   it("should return all subcommands when no input after TmuxSend", function()
     local results = cmd_complete("", "TmuxSend ", 9)
-    local expected = { "line", "select" }
+    local expected = { "line", "path", "select" }
     table.sort(results)
     table.sort(expected)
     assert.are.same(expected, results)
@@ -57,6 +57,11 @@ describe("TmuxSend command completion", function()
   it("should handle 's' prefix correctly", function()
     local results = cmd_complete("s", "TmuxSend s", 10)
     assert.are.same({ "select" }, results)
+  end)
+
+  it("should handle 'p' prefix correctly", function()
+    local results = cmd_complete("p", "TmuxSend p", 10)
+    assert.are.same({ "path" }, results)
   end)
 
 end)

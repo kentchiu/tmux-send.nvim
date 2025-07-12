@@ -8,7 +8,7 @@ local pane = require("tmux-send.pane")
 local tmux_send = require("tmux-send")
 
 local function cmd_complete(arg_lead, cmd_line, cursor_pos)
-  local subcmds = { "line", "select" }
+  local subcmds = { "line", "select", "path" }
 
   -- Parse the command line to get arguments after "TmuxSend"
   local cmd_start = cmd_line:find("TmuxSend")
@@ -49,6 +49,8 @@ vim.api.nvim_create_user_command("TmuxSend", function(opts)
     tmux_send.send()
   elseif args[1] == "select" then
     tmux_send.select_pane()
+  elseif args[1] == "path" then
+    tmux_send.send_path()
   else
     vim.notify("[tmux-send] Unknown subcommand: " .. args[1], vim.log.levels.ERROR)
   end
@@ -72,3 +74,7 @@ vim.keymap.set("n", "<Plug>(TmuxSelectPane)", function()
     end
   end)
 end, { desc = "Select tmux pane" })
+
+vim.keymap.set("n", "<Plug>(TmuxSendPath)", function()
+  tmux_send.send_path()
+end, { desc = "Send file paths to tmux" })

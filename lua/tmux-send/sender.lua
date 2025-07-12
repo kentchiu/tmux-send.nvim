@@ -24,20 +24,24 @@ function M.send_to_pane(text, target, opts)
   local args = { "send-keys", "-t", target }
 
   if config.use_bracketed_paste and opts.use_bracketed_paste ~= false then
-    table.insert(args, "-X")
-    table.insert(args, "begin-selection")
+    -- Send bracketed paste start sequence
+    args = { "send-keys", "-t", target, "Escape", "[200~" }
     util.tmux_exec(args)
 
-    args = { "send-keys", "-t", target, "-l", text }
+    -- Send the actual text
+    -- Use -- to prevent text starting with - from being interpreted as options
+    args = { "send-keys", "-t", target, "-l", "--", text }
     local _, err = util.tmux_exec(args)
     if err then
       return false, err
     end
 
-    args = { "send-keys", "-t", target, "-X", "cancel" }
+    -- Send bracketed paste end sequence
+    args = { "send-keys", "-t", target, "Escape", "[201~" }
     util.tmux_exec(args)
   else
     table.insert(args, "-l")
+    table.insert(args, "--")
     table.insert(args, text)
     local _, err = util.tmux_exec(args)
     if err then
@@ -86,6 +90,20 @@ function M.send_file_path(target, opts)
   opts = opts or {}
   local path = vim.fn.expand(opts.expand or "%:p")
   return M.send_to_pane(path, target, { send_enter = false })
+end
+
+---Send multiple file paths
+---@param paths string[] Array of file paths
+---@param target string Pane ID
+---@return boolean success
+---@return string? error
+function M.send_paths(paths, target)
+  if not paths or #paths == 0 then
+    return true
+  end
+  
+  local text = table.concat(paths, "\n") .. "\n"
+  return M.send_to_pane(text, target)
 end
 
 return M
