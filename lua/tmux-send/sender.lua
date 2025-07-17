@@ -49,7 +49,6 @@ function M.send_to_pane(text, target, opts)
     end
   end
 
-
   return true
 end
 
@@ -101,10 +100,9 @@ function M.send_paths(paths, target)
   if not paths or #paths == 0 then
     return true
   end
-  
+
   local text = table.concat(paths, "\n") .. "\n"
   return M.send_to_pane(text, target)
 end
 
 return M
-

@@ -157,13 +157,18 @@ function M.get_visual_selection()
       -- 單行選擇
       local line_content = lines[1]
       -- vim.fn.getpos 返回的是位元組位置 (1-based)，需要轉換為字元索引
-      local start_char_idx = vim.fn.charidx(line_content, start_col - 1)  -- 轉換為 0-based 位元組位置
-      local end_char_idx = vim.fn.charidx(line_content, end_col - 1)      -- 轉換為 0-based 位元組位置
+      local start_char_idx = vim.fn.charidx(line_content, start_col - 1) -- 轉換為 0-based 位元組位置
+      local end_char_idx = vim.fn.charidx(line_content, end_col - 1) -- 轉換為 0-based 位元組位置
       local char_count = end_char_idx - start_char_idx + 1
       lines[1] = vim.fn.strcharpart(line_content, start_char_idx, char_count)
       M.log(
-        string.format("單行截取: start_char=%d, end_char=%d, count=%d, content='%s'", 
-          start_char_idx, end_char_idx, char_count, lines[1]),
+        string.format(
+          "單行截取: start_char=%d, end_char=%d, count=%d, content='%s'",
+          start_char_idx,
+          end_char_idx,
+          char_count,
+          lines[1]
+        ),
         "DEBUG"
       )
     else
@@ -177,7 +182,7 @@ function M.get_visual_selection()
       M.log(string.format("多行截取 - 第一行: start_char=%d, content='%s'", start_char_idx, lines[1]), "DEBUG")
 
       -- 截取最後一行到 end_col 的部分
-      local end_char_idx = vim.fn.charidx(last_line_content, end_col - 1) + 1  -- +1 因為要包含結束字元
+      local end_char_idx = vim.fn.charidx(last_line_content, end_col - 1) + 1 -- +1 因為要包含結束字元
       lines[#lines] = vim.fn.strcharpart(last_line_content, 0, end_char_idx)
       M.log(
         string.format("多行截取 - 最後一行: end_char=%d, content='%s'", end_char_idx, lines[#lines]),
@@ -234,4 +239,3 @@ function M.template_code(input, filetype, start_line, end_line, path)
 end
 
 return M
-

@@ -30,7 +30,7 @@ local function get_pane_by_position(position)
     next = pane.get_next_pane,
     previous = pane.get_previous_pane,
   }
-  
+
   local func = pane_func[position]
   if func then
     local target_pane = func()
@@ -50,7 +50,7 @@ function M.resolve_target(target)
   if target then
     if type(target) == "string" then
       local target_type = parse_target_type(target)
-      
+
       if target_type == "id" then
         return target
       elseif target_type ~= "unknown" then

@@ -36,7 +36,7 @@ describe("TmuxSend command completion", function()
 
   it("should return all subcommands when no input after TmuxSend", function()
     local results = cmd_complete("", "TmuxSend ", 9)
-    local expected = { "line", "path", "select" }
+    local expected = { "current-path", "line", "path", "select" }
     table.sort(results)
     table.sort(expected)
     assert.are.same(expected, results)
@@ -47,12 +47,10 @@ describe("TmuxSend command completion", function()
     assert.are.same({ "line" }, results)
   end)
 
-
   it("should return empty when subcommand is complete with space", function()
     local results = cmd_complete("", "TmuxSend line ", 14)
     assert.are.same({}, results)
   end)
-
 
   it("should handle 's' prefix correctly", function()
     local results = cmd_complete("s", "TmuxSend s", 10)
@@ -61,7 +59,12 @@ describe("TmuxSend command completion", function()
 
   it("should handle 'p' prefix correctly", function()
     local results = cmd_complete("p", "TmuxSend p", 10)
+    -- Note: both "path" will match
     assert.are.same({ "path" }, results)
   end)
 
+  it("should handle 'c' prefix correctly", function()
+    local results = cmd_complete("c", "TmuxSend c", 10)
+    assert.are.same({ "current-path" }, results)
+  end)
 end)

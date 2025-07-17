@@ -39,5 +39,4 @@ describe("tmux-send", function()
       end)
     end)
   end)
-
 end)

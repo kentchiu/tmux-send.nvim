@@ -2,8 +2,8 @@
 local M = {}
 
 local pane = require("tmux-send.pane")
-local sender = require("tmux-send.sender")
 local resolver = require("tmux-send.resolver")
+local sender = require("tmux-send.sender")
 local util = require("tmux-send.util")
 
 ---Handle pane selection for multi-pane scenarios
@@ -28,7 +28,7 @@ local function handle_pane_selection(callback, target)
     M.select_pane(callback)
     return false
   end
-  
+
   return true
 end
 
@@ -36,11 +36,13 @@ end
 ---@param text? string Text to send (default: current line/selection)
 ---@param target? string|integer Target pane (default: last used)
 function M.send(text, target)
-  if not handle_pane_selection(function(selected_pane_id)
-    if selected_pane_id then
-      M.send(text, selected_pane_id)
-    end
-  end, target) then
+  if
+    not handle_pane_selection(function(selected_pane_id)
+      if selected_pane_id then
+        M.send(text, selected_pane_id)
+      end
+    end, target)
+  then
     return
   end
 
@@ -64,14 +66,41 @@ function M.send(text, target)
   end
 end
 
+---Send current file path to tmux pane
+---@param target? string|integer Target pane (default: last used)
+function M.send_current_file_path(target)
+  if
+    not handle_pane_selection(function(selected_pane_id)
+      if selected_pane_id then
+        M.send_current_file_path(selected_pane_id)
+      end
+    end, target)
+  then
+    return
+  end
+
+  local pane_id, err = resolver.resolve_target(target)
+  if not pane_id then
+    vim.notify("[tmux-send] " .. (err or "No target pane"), vim.log.levels.ERROR)
+    return
+  end
+
+  local success, send_err = sender.send_file_path(pane_id)
+  if not success then
+    vim.notify("[tmux-send] " .. (send_err or "Failed to send current file path"), vim.log.levels.ERROR)
+  end
+end
+
 ---Send file paths to tmux pane
 ---@param target? string|integer Target pane (default: last used)
 function M.send_path(target)
-  if not handle_pane_selection(function(selected_pane_id)
-    if selected_pane_id then
-      M.send_path(selected_pane_id)
-    end
-  end, target) then
+  if
+    not handle_pane_selection(function(selected_pane_id)
+      if selected_pane_id then
+        M.send_path(selected_pane_id)
+      end
+    end, target)
+  then
     return
   end
 
@@ -91,10 +120,10 @@ function M.send_path(target)
       confirm = function(picker, item)
         -- Get all selected items, fallback to current item if none selected
         local selected_items = picker:selected({ fallback = true })
-        
+
         -- Close the picker
         picker:close()
-        
+
         -- Convert items to absolute paths
         local paths = {}
         for _, selected_item in ipairs(selected_items) do
@@ -103,18 +132,18 @@ function M.send_path(target)
             table.insert(paths, abs_path)
           end
         end
-        
+
         if #paths == 0 then
           vim.notify("[tmux-send] No files selected", vim.log.levels.WARN)
           return
         end
-        
+
         -- Send paths to pane
         local success, send_err = sender.send_paths(paths, pane_id)
         if not success then
           vim.notify("[tmux-send] " .. (send_err or "Failed to send paths"), vim.log.levels.ERROR)
         end
-      end
+      end,
     })
   else
     vim.notify("[tmux-send] Snacks.nvim is required for file picker", vim.log.levels.ERROR)
@@ -127,28 +156,34 @@ end
 function M.select_pane(callback)
   if not util.in_tmux() then
     vim.notify("[tmux-send] Not in tmux session", vim.log.levels.ERROR)
-    if callback then callback(nil) end
+    if callback then
+      callback(nil)
+    end
     return nil
   end
 
   local panes = pane.list_panes()
   if #panes == 0 then
     vim.notify("[tmux-send] No panes available", vim.log.levels.ERROR)
-    if callback then callback(nil) end
+    if callback then
+      callback(nil)
+    end
     return nil
   end
-  
+
   -- Filter out current pane
   local target_panes = vim.tbl_filter(function(p)
     return not p.current
   end, panes)
-  
+
   if #target_panes == 0 then
     vim.notify("[tmux-send] No other panes available in window", vim.log.levels.ERROR)
-    if callback then callback(nil) end
+    if callback then
+      callback(nil)
+    end
     return nil
   end
-  
+
   -- Show tmux display-panes to help users identify panes
   util.tmux_exec({ "display-panes", "-d", "1500" })
 
@@ -191,7 +226,7 @@ function M.select_pane(callback)
   if callback then
     callback(pane_id)
   end
-  
+
   return pane_id
 end
 

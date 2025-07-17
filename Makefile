@@ -1,7 +1,7 @@
 TESTS_INIT=scripts/minimal_init.lua
 TESTS_DIR=tests/
 
-.PHONY: test test-file test-watch clean
+.PHONY: test test-file test-watch clean format check-format
 
 # Run all tests
 test:
@@ -34,3 +34,13 @@ test-watch:
 clean:
 	@echo "Cleaning up..."
 	@rm -rf tests/*.log
+
+# Format code with stylua
+format:
+	@echo "Formatting Lua files..."
+	@stylua lua/ tests/ --config-path stylua.toml
+
+# Check if code is formatted
+check-format:
+	@echo "Checking code format..."
+	@stylua lua/ tests/ --check --config-path stylua.toml

@@ -42,12 +42,20 @@ local function get_default_keymaps(prefix)
       desc = "Select pane and send",
     },
     send_path = {
-      lhs = prefix .. "f",
+      lhs = prefix .. "F",
       rhs = function()
         tmux_send.send_path()
       end,
       mode = "n",
       desc = "Send file paths",
+    },
+    send_current_file_path = {
+      lhs = prefix .. "f",
+      rhs = function()
+        tmux_send.send_current_file_path()
+      end,
+      mode = "n",
+      desc = "Send current file path",
     },
   }
 end
