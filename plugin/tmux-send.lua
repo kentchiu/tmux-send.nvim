@@ -8,7 +8,7 @@ local pane = require("tmux-send.pane")
 local tmux_send = require("tmux-send")
 
 local function cmd_complete(arg_lead, cmd_line, cursor_pos)
-  local subcmds = { "line", "select", "path", "current-path" }
+  local subcmds = { "line", "select", "path", "current-path", "image-paths" }
 
   -- Parse the command line to get arguments after "TmuxSend"
   local cmd_start = cmd_line:find("TmuxSend")
@@ -53,6 +53,8 @@ vim.api.nvim_create_user_command("TmuxSend", function(opts)
     tmux_send.send_path()
   elseif args[1] == "current-path" then
     tmux_send.send_current_file_path()
+  elseif args[1] == "image-paths" then
+    tmux_send.send_image_paths()
   else
     vim.notify("[tmux-send] Unknown subcommand: " .. args[1], vim.log.levels.ERROR)
   end
@@ -61,6 +63,13 @@ end, {
   range = true,
   complete = cmd_complete,
   desc = "Send text to tmux pane",
+})
+
+-- Create dedicated command for image paths
+vim.api.nvim_create_user_command("TmuxSendImagePaths", function()
+  tmux_send.send_image_paths()
+end, {
+  desc = "Send image paths from /mnt/c/sharex/ to tmux pane",
 })
 
 vim.keymap.set({ "n", "x" }, "<Plug>(TmuxSendLine)", function()
@@ -84,3 +93,7 @@ end, { desc = "Send file paths to tmux" })
 vim.keymap.set("n", "<Plug>(TmuxSendCurrentPath)", function()
   tmux_send.send_current_file_path()
 end, { desc = "Send current file path to tmux" })
+
+vim.keymap.set("n", "<Plug>(TmuxSendImagePaths)", function()
+  tmux_send.send_image_paths()
+end, { desc = "Send image paths to tmux" })

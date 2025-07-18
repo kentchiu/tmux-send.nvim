@@ -57,6 +57,14 @@ local function get_default_keymaps(prefix)
       mode = "n",
       desc = "Send current file path",
     },
+    send_image_paths = {
+      lhs = prefix .. "i",
+      rhs = function()
+        tmux_send.send_image_paths()
+      end,
+      mode = "n",
+      desc = "Send image paths",
+    },
   }
 end
 

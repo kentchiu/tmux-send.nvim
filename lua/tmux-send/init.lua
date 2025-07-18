@@ -18,6 +18,8 @@ end
 M.send = actions.send
 M.send_path = actions.send_path
 M.send_current_file_path = actions.send_current_file_path
+M.send_image_paths = actions.send_image_paths
+M.send_with_images = actions.send_with_images
 M.select_pane = actions.select_pane
 
 return M

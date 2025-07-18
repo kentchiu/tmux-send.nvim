@@ -5,6 +5,7 @@ local pane = require("tmux-send.pane")
 local resolver = require("tmux-send.resolver")
 local sender = require("tmux-send.sender")
 local util = require("tmux-send.util")
+local image = require("tmux-send.image")
 
 ---Handle pane selection for multi-pane scenarios
 ---@param callback fun(pane_id: string|nil)
@@ -228,6 +229,92 @@ function M.select_pane(callback)
   end
 
   return pane_id
+end
+
+---Send image paths to tmux pane
+---@param target? string|integer Target pane (default: last used)
+function M.send_image_paths(target)
+  if
+    not handle_pane_selection(function(selected_pane_id)
+      if selected_pane_id then
+        M.send_image_paths(selected_pane_id)
+      end
+    end, target)
+  then
+    return
+  end
+
+  local pane_id, err = resolver.resolve_target(target)
+  if not pane_id then
+    vim.notify("[tmux-send] " .. (err or "No target pane"), vim.log.levels.ERROR)
+    return
+  end
+
+  -- Get all image files
+  local images = image.get_image_list()
+  if #images == 0 then
+    vim.notify("[tmux-send] No images found in /mnt/c/sharex/", vim.log.levels.WARN)
+    return
+  end
+
+  -- Try to use Snacks.nvim picker if available
+  local ok, Snacks = pcall(require, "snacks")
+  if ok and Snacks.picker then
+    -- Convert image list to picker items
+    local items = {}
+    for i, img in ipairs(images) do
+      table.insert(items, {
+        text = image.format_image_item(img),
+        value = img.path,
+        index = i,
+      })
+    end
+
+    -- Use Snacks.picker.select for simplicity
+    Snacks.picker.select(items, {
+      prompt = "Select images to send",
+      format_item = function(item)
+        return item.text
+      end,
+    }, function(item)
+      if not item then
+        vim.notify("[tmux-send] No image selected", vim.log.levels.WARN)
+        return
+      end
+
+      -- For now, handle single selection
+      -- TODO: Add multi-selection support
+      local success, send_err = sender.send_paths({ item.value }, pane_id)
+      if not success then
+        vim.notify("[tmux-send] " .. (send_err or "Failed to send image path"), vim.log.levels.ERROR)
+      end
+    end)
+  else
+    -- Fallback to inputlist if Snacks is not available
+    local items = {}
+    for i, img in ipairs(images) do
+      table.insert(items, string.format("%d. %s", i, image.format_image_item(img)))
+    end
+
+    local choice = vim.fn.inputlist(items)
+    if choice > 0 and choice <= #images then
+      local success, send_err = sender.send_paths({ images[choice].path }, pane_id)
+      if not success then
+        vim.notify("[tmux-send] " .. (send_err or "Failed to send image path"), vim.log.levels.ERROR)
+      end
+    end
+  end
+end
+
+---Send text with @IMAGE syntax replacement
+---@param text string Text containing @IMAGE patterns
+---@param target? string|integer Target pane (default: last used)
+function M.send_with_images(text, target)
+  -- Parse @IMAGE syntax
+  local parsed_text = image.parse_image_syntax(text)
+  
+  -- Send the parsed text
+  M.send(parsed_text, target)
 end
 
 return M
