@@ -1,11 +1,11 @@
 ---@class tmux-send.actions
 local M = {}
 
+local image = require("tmux-send.image")
 local pane = require("tmux-send.pane")
 local resolver = require("tmux-send.resolver")
 local sender = require("tmux-send.sender")
 local util = require("tmux-send.util")
-local image = require("tmux-send.image")
 
 ---Handle pane selection for multi-pane scenarios
 ---@param callback fun(pane_id: string|nil)
@@ -115,7 +115,6 @@ function M.send_path(target)
   local ok, Snacks = pcall(require, "snacks")
   if ok and Snacks.picker then
     Snacks.picker.files({
-      prompt = "Select files to send",
       hidden = true,
       ignored = true,
       confirm = function(picker, item)
@@ -260,35 +259,53 @@ function M.send_image_paths(target)
   -- Try to use Snacks.nvim picker if available
   local ok, Snacks = pcall(require, "snacks")
   if ok and Snacks.picker then
-    -- Convert image list to picker items
-    local items = {}
-    for i, img in ipairs(images) do
-      table.insert(items, {
-        text = image.format_image_item(img),
-        value = img.path,
-        index = i,
+    -- Create custom items for picker
+    local picker_items = {}
+    for _, img in ipairs(images) do
+      -- Create item with 'file' property to match files picker pattern
+      table.insert(picker_items, {
+        file = img.path,
+        display = image.format_image_item(img),
       })
     end
 
-    -- Use Snacks.picker.select for simplicity
-    Snacks.picker.select(items, {
+    -- Create a custom picker similar to files picker
+    local CustomImagePicker = {
+      items = picker_items,
       prompt = "Select images to send",
       format_item = function(item)
-        return item.text
+        return item.display or vim.fn.fnamemodify(item.file, ":t")
       end,
-    }, function(item)
-      if not item then
-        vim.notify("[tmux-send] No image selected", vim.log.levels.WARN)
-        return
-      end
+      confirm = function(picker, item)
+        -- Get all selected items, fallback to current item if none selected
+        local selected_items = picker:selected({ fallback = true })
 
-      -- For now, handle single selection
-      -- TODO: Add multi-selection support
-      local success, send_err = sender.send_paths({ item.value }, pane_id)
-      if not success then
-        vim.notify("[tmux-send] " .. (send_err or "Failed to send image path"), vim.log.levels.ERROR)
-      end
-    end)
+        -- Close the picker
+        picker:close()
+
+        -- Extract paths from selected items
+        local paths = {}
+        for _, selected_item in ipairs(selected_items) do
+          if selected_item and selected_item.file then
+            table.insert(paths, selected_item.file)
+          end
+        end
+
+        if #paths == 0 then
+          vim.notify("[tmux-send] No images selected", vim.log.levels.WARN)
+          return
+        end
+
+        -- Send paths to pane
+        local success, send_err = sender.send_paths(paths, pane_id)
+        if not success then
+          vim.notify("[tmux-send] " .. (send_err or "Failed to send image paths"), vim.log.levels.ERROR)
+        end
+      end,
+    }
+    
+    -- Create and open the picker
+    Snacks.picker(CustomImagePicker)
   else
     -- Fallback to inputlist if Snacks is not available
     local items = {}
@@ -312,7 +329,7 @@ end
 function M.send_with_images(text, target)
   -- Parse @IMAGE syntax
   local parsed_text = image.parse_image_syntax(text)
-  
+
   -- Send the parsed text
   M.send(parsed_text, target)
 end
