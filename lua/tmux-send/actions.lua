@@ -53,27 +53,17 @@ function M.send(text, target)
     return
   end
 
-  local cfg = require("tmux-send.config").get()
-  local use_preview = cfg.use_preview ~= false -- Default to true if not set
-
   if text then
     local success, send_err = sender.send_to_pane(text, pane_id)
     if not success then
       vim.notify("[tmux-send] " .. (send_err or "Failed to send"), vim.log.levels.ERROR)
     end
   elseif vim.fn.mode() == "v" or vim.fn.mode() == "V" then
-    if use_preview then
-      sender.send_selection_with_preview(pane_id, function(success, send_err)
-        if not success and send_err ~= "Cancelled" then
-          vim.notify("[tmux-send] " .. (send_err or "Failed to send"), vim.log.levels.ERROR)
-        end
-      end)
-    else
-      local success, send_err = sender.send_selection(pane_id)
-      if not success then
+    sender.send_selection(pane_id, function(success, send_err)
+      if not success and send_err ~= "Cancelled" then
         vim.notify("[tmux-send] " .. (send_err or "Failed to send"), vim.log.levels.ERROR)
       end
-    end
+    end)
   else
     local success, send_err = sender.send_line(pane_id)
     if not success then
