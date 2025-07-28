@@ -104,6 +104,9 @@ require("tmux-send").setup({
   -- Use tmux bracketed paste mode for better handling of special characters
   use_bracketed_paste = true,
 
+  -- Show preview window for visual selection before sending (default: true)
+  use_preview = true,
+
   -- Enable default keymaps (set to false to disable)
   keymaps = true,
 
@@ -125,7 +128,10 @@ require("tmux-send").setup({
 
 1. **Basic usage**: Place cursor on a line and use your keymap (e.g., `<leader>ats`) to send it to the last active tmux pane.
 
-2. **Visual selection**: Select text in visual mode and use `<leader>ats` to send the selection.
+2. **Visual selection**: Select text in visual mode and use `<leader>ats` to send the selection. By default, this will show a preview window where you can edit the content before sending.
+   - Press `<CR>` or `<C-s>` to send the edited content
+   - Press `<Esc>` or `q` to cancel without sending
+   - To disable preview mode, set `use_preview = false` in the configuration
 
 3. **Select target pane**: Use `<leader>atp` to interactively select which tmux pane to send text to.
 

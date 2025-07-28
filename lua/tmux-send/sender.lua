@@ -80,6 +80,31 @@ function M.send_selection(target)
   return M.send_to_pane(text, target)
 end
 
+---Send visual selection with preview
+---@param target string
+---@param callback? fun(success: boolean, error?: string)
+function M.send_selection_with_preview(target, callback)
+  local text = util.get_visual_selection()
+  if not text then
+    if callback then
+      callback(false, "Failed to get visual selection")
+    end
+    return
+  end
+
+  local preview = require("tmux-send.preview")
+  preview.show_preview(text, function(edited_text)
+    if edited_text then
+      local success, err = M.send_to_pane(edited_text, target)
+      if callback then
+        callback(success, err)
+      end
+    elseif callback then
+      callback(false, "Cancelled")
+    end
+  end)
+end
+
 ---Send file path
 ---@param target string
 ---@param opts? table
