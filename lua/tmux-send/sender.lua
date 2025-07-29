@@ -71,7 +71,7 @@ end
 ---@param target string
 ---@param callback? fun(success: boolean, error?: string)
 function M.send_selection(target, callback)
-  local text = util.get_visual_selection()
+  local text, start_line, end_line = util.get_visual_selection()
   if not text then
     if callback then
       callback(false, "Failed to get visual selection")
@@ -84,9 +84,14 @@ function M.send_selection(target, callback)
   local config = require("tmux-send.config").get()
   
   if config.use_preview ~= false then
+    -- Format text with file info and syntax highlighting for preview
+    local filepath = vim.fn.expand("%:p")
+    local filetype = vim.bo.filetype
+    local formatted_text = util.template_code(text, filetype, start_line, end_line, filepath)
+    
     -- Use preview by default
     local preview = require("tmux-send.preview")
-    preview.show_preview(text, function(edited_text)
+    preview.show_preview(formatted_text, function(edited_text)
       if edited_text then
         local success, err = M.send_to_pane(edited_text, target)
         if callback then
